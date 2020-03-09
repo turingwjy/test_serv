@@ -16,3 +16,30 @@
  * =====================================================================================
  */
 
+#ifndef _MY_THREAD_H
+#define _MY_THREAD_H
+
+#include <ace/Thread.h>
+#include "MySvcHandler.h"
+#include "LockedQueue.h"
+class MyThread
+{
+
+public:
+    MyThread();
+    ~MyThread();
+public:
+    bool start();
+    bool wait();
+    bool stop();
+    void suspend();
+    void resume();
+private:
+    static void* RunThread( void* arg );
+private:
+    ACE_thread_t        m_ThreadId;
+    ACE_hthread_t       m_ThreadHandle;
+    ACE_Thread_Mutex    m_mutex;
+};
+
+#endif
