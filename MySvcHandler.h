@@ -41,8 +41,8 @@ struct PacketHeader
 
 struct Packet
 {
-    PacketHeader        msg_header;
-    ACE_Message_Block   msg_body;
+    PacketHeader    msg_header;
+    std::string     msg_body;
 };
 
 
@@ -52,8 +52,7 @@ public:
     MyAceSvcHandler() ;
     virtual ~MyAceSvcHandler();
 public:
-public:
-    bool Update();
+    int Update();
     bool IsClosed()const;
     virtual int open( void* arg ) override;
 
@@ -62,6 +61,10 @@ public:
     virtual int handle_output( ACE_HANDLE fd ) override;
 
     virtual int handle_close(ACE_HANDLE h = ACE_INVALID_HANDLE, ACE_Reactor_Mask mask = ACE_Event_Handler::ALL_EVENTS_MASK ) override;
+
+    int ProcessPkg(  );
+
+    void CloseSock();
 
 private:
     uint32                  m_dwSockId;

@@ -161,160 +161,178 @@ using namespace std;
 //    std::cout<<"func"<<std::endl;
 //    return 0;
 //}
+//#include <typeinfo>
+//#include <map>
+//class ARG_TYPE_BASE
+//{
+//public:
+//    virtual ~ARG_TYPE_BASE(){}
+//    virtual void Show() = 0;
+//    virtual void SetArgName( const std::string& str )
+//    {
+//        if ( str != "" )
+//            m_ArgName = str;
+//    }
+//    std::string& ArgName(){return m_ArgName;}
+//private:
+//    std::string m_ArgName;
+//};
+//
+//class ART_TYPE_A : public ARG_TYPE_BASE
+//{
+//public:
+//    virtual ~ART_TYPE_A(){}
+//    virtual void Show()
+//    {
+//        std::cout<<"This is ART_TYPE_A"<<std::endl;
+//    }
+//    virtual void SetArgName( const std::string& str )
+//    {
+//        ArgName() += str+"A";
+//    }
+//};
+//
+//class ART_TYPE_B : public ARG_TYPE_BASE
+//{
+//public:
+//    virtual ~ART_TYPE_B(){}
+//    virtual void Show()
+//    {
+//        std::cout<<"This is ART_TYPE_B"<<std::endl;
+//    }
+//    virtual void SetArgName( const std::string& str )
+//    {
+//        ArgName() += str+"B";
+//    }
+//};
+//
+//class ART_TYPE_C : public ARG_TYPE_BASE
+//{
+//public:
+//    virtual ~ART_TYPE_C(){}
+//    virtual void Show()
+//    {
+//        std::cout<<"This is ART_TYPE_C"<<std::endl;
+//    }
+//    virtual void SetArgName( const std::string& str )
+//    {
+//        ArgName() += str+"C";
+//    }
+//};
+//
+//void SetArgName( ARG_TYPE_BASE& a )
+//{
+//    a.SetArgName("ttt");
+//}
+//
+//class HandlerBase
+//{
+//public:
+//    HandlerBase(){}
+//    virtual ~HandlerBase(){}
+//    virtual void Call() = 0;
+//};
+//typedef std::map< int, HandlerBase* > HandlerMap;
+//template < typename OBJ, typename ARG_TYPE>
+//class Handler : public HandlerBase
+//{
+//public:
+//    typedef void (OBJ::*FUNC)(ARG_TYPE& );
+//    typedef std::pair< OBJ*, FUNC > PairHandleType;
+//    Handler(): HandlerBase() {}
+//    Handler( OBJ* obj,FUNC fun  ) : HandlerBase()
+//    {
+//        m_Hanlde = std::make_pair( obj, fun );
+//    }
+//    virtual ~Handler(){}
+//    virtual void Call()
+//    {
+//        if ( m_Hanlde.first )
+//        {
+//            ARG_TYPE base;
+//            SetArgName(base);
+//            ( (m_Hanlde.first)->*m_Hanlde.second)(base);
+//        }
+//    }
+//private:
+//    PairHandleType m_Hanlde;
+//};
+//#define MK( k, v )  std::make_pair( k, v )
+//HandlerMap mapHandlers;
+//
+//class Student
+//{
+//public:
+//    Student() : m_Name("abc")
+//    {
+//        InitHandler();
+//    }
+//    void InitHandler();
+//
+//    void Call1( ART_TYPE_A& a )
+//    {
+//        a.Show();
+//        std::cout<<a.ArgName()<<std::endl;
+//    }
+//    void Call2( ART_TYPE_B& b )
+//    {
+//        b.Show();
+//        std::cout<<b.ArgName()<<std::endl;
+//    }
+//    void Call3( ART_TYPE_C& c )
+//    {
+//        c.Show();
+//        std::cout<<c.ArgName()<<std::endl;
+//    }
+//private:
+//    std::string m_Name;
+//};
+//
+//int cmd_id = 1;
+//
+//template< typename OBJ, typename ARG_TYPE >
+//void AddHandler( OBJ* obj, void (OBJ::*func)(ARG_TYPE&)  )
+//{
+//    HandlerBase* pBase = new Handler<OBJ, ARG_TYPE>( obj, func );
+//    mapHandlers.insert( MK( cmd_id++,  pBase) );
+//}
+//void Student::InitHandler()
+//{
+//    AddHandler( this, &Student::Call1 );
+//    AddHandler( this, &Student::Call2 );
+//    AddHandler( this, &Student::Call3 );
+//}
 #include <typeinfo>
-#include <map>
-class ARG_TYPE_BASE
+class A
+{};
+#include <set>
+class Test
 {
 public:
-    virtual ~ARG_TYPE_BASE(){}
-    virtual void Show() = 0;
-    virtual void SetArgName( const std::string& str )
+    typedef std::set<A*> SetA;
+    const SetA& getSetA()const
     {
-        if ( str != "" )
-            m_ArgName = str;
-    }
-    std::string& ArgName(){return m_ArgName;}
-private:
-    std::string m_ArgName;
-};
-
-class ART_TYPE_A : public ARG_TYPE_BASE
-{
-public:
-    virtual ~ART_TYPE_A(){}
-    virtual void Show()
-    {
-        std::cout<<"This is ART_TYPE_A"<<std::endl;
-    }
-    virtual void SetArgName( const std::string& str )
-    {
-        ArgName() += str+"A";
-    }
-};
-
-class ART_TYPE_B : public ARG_TYPE_BASE
-{
-public:
-    virtual ~ART_TYPE_B(){}
-    virtual void Show()
-    {
-        std::cout<<"This is ART_TYPE_B"<<std::endl;
-    }
-    virtual void SetArgName( const std::string& str )
-    {
-        ArgName() += str+"B";
-    }
-};
-
-class ART_TYPE_C : public ARG_TYPE_BASE
-{
-public:
-    virtual ~ART_TYPE_C(){}
-    virtual void Show()
-    {
-        std::cout<<"This is ART_TYPE_C"<<std::endl;
-    }
-    virtual void SetArgName( const std::string& str )
-    {
-        ArgName() += str+"C";
-    }
-};
-
-void SetArgName( ARG_TYPE_BASE& a )
-{
-    a.SetArgName("ttt");
-}
-
-class HandlerBase
-{
-public:
-    HandlerBase(){}
-    virtual ~HandlerBase(){}
-    virtual void Call() = 0;
-};
-typedef std::map< int, HandlerBase* > HandlerMap;
-template < typename OBJ, typename ARG_TYPE>
-class Handler : public HandlerBase
-{
-public:
-    typedef void (OBJ::*FUNC)(ARG_TYPE& );
-    typedef std::pair< OBJ*, FUNC > PairHandleType;
-    Handler(): HandlerBase() {}
-    Handler( OBJ* obj,FUNC fun  ) : HandlerBase()
-    {
-        m_Hanlde = std::make_pair( obj, fun );
-    }
-    virtual ~Handler(){}
-    virtual void Call()
-    {
-        if ( m_Hanlde.first )
-        {
-            ARG_TYPE base;
-            SetArgName(base);
-            ( (m_Hanlde.first)->*m_Hanlde.second)(base);
-        }
+        return m_setA;
     }
 private:
-    PairHandleType m_Hanlde;
+    SetA m_setA;
 };
-#define MK( k, v )  std::make_pair( k, v )
-HandlerMap mapHandlers;
-
-class Student
-{
-public:
-    Student() : m_Name("abc")
-    {
-        InitHandler();
-    }
-    void InitHandler();
-
-    void Call1( ART_TYPE_A& a )
-    {
-        a.Show();
-        std::cout<<a.ArgName()<<std::endl;
-    }
-    void Call2( ART_TYPE_B& b )
-    {
-        b.Show();
-        std::cout<<b.ArgName()<<std::endl;
-    }
-    void Call3( ART_TYPE_C& c )
-    {
-        c.Show();
-        std::cout<<c.ArgName()<<std::endl;
-    }
-private:
-    std::string m_Name;
-};
-
-int cmd_id = 1;
-
-template< typename OBJ, typename ARG_TYPE >
-void AddHandler( OBJ* obj, void (OBJ::*func)(ARG_TYPE&)  )
-{
-    HandlerBase* pBase = new Handler<OBJ, ARG_TYPE>( obj, func );
-    mapHandlers.insert( MK( cmd_id++,  pBase) );
-}
-void Student::InitHandler()
-{
-    AddHandler( this, &Student::Call1 );
-    AddHandler( this, &Student::Call2 );
-    AddHandler( this, &Student::Call3 );
-}
 
 
 int main( int argc, char **argv )
 {
-    Student s1;
-
-    for ( HandlerMap::iterator it = mapHandlers.begin(); it != mapHandlers.end();  )
-    {
-        it->second->Call();
-        delete it->second;
-        it++;
-    }
-    mapHandlers.clear();
+    Test t;
+    const Test::SetA& setA = t.getSetA();
+    //std::cout<<typeid(unsigned char ).name()<<std::endl;
+//    Student s1;
+//
+//    for ( HandlerMap::iterator it = mapHandlers.begin(); it != mapHandlers.end();  )
+//    {
+//        it->second->Call();
+//        delete it->second;
+//        it++;
+//    }
+//    mapHandlers.clear();
 
     //smapHandlers.insert( std::make_pair( 1, new Handler<int>(1)));
     //mapHandlers.insert( std::make_pair( 2, new Handler< float >(2.0f) ));

@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/turing/test/test_serv/test.cpp
+iostream
+-
+list
+-
+vector
+-
+algorithm
+-
+ace/Message_Block.h
+-
+typeinfo
+-
+set
+-
+

@@ -22,6 +22,7 @@
 #include <ace/SOCK_Connector.h>
 #include <ace/Acceptor.h>
 #include <ace/Connector.h>
+#include <ace/Guard_T.h>
 #include "MySvcHandler.h"
 #include "MyThread.h"
 #include <set>
@@ -61,11 +62,13 @@ public:
     void Update();
     void Wait();
     int ProcessMsg();
+    void AddPacket(Packet* pkg);
+    SetSockets& GetSetSockets() const;
 private:
     NetMgr();
     virtual ~NetMgr();
     static ACE_Thread_Mutex s_mutex;
-    MyThread*   m_pThread;
+    MyThread*   m_pResponseThread;
 private:
     uint16              m_port;
     std::string         m_strAddr;
@@ -76,9 +79,11 @@ private:
     ACE_Event_Handler*  m_pConnector;
     MyThread*           m_Threads;
     ACE_Reactor*        m_Reactor;
+    bool                m_bIsRunning;
 };
 
-#define sNetMgrInstance NetMgr::GetInstance():
+
+#define sNetMgrInstance NetMgr::GetInstance()
 
 #endif
 

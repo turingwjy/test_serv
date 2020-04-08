@@ -21,7 +21,15 @@
 ACE_Thread_Mutex NetMgr::s_mutex;
 
 NetMgr::NetMgr():
-m_dwConnNums(0), m_pAcceptor(NULL), m_pConnector(NULL), m_port(0), m_Threads(NULL) , m_Reactor(NULL), m_dwConnCounts(0), m_pThread(NULL)
+m_dwConnNums(0),
+m_pAcceptor(NULL),
+m_pConnector(NULL),
+m_port(0),
+m_Threads(NULL) ,
+m_Reactor(NULL),
+m_dwConnCounts(0),
+m_pResponseThread(NULL),
+m_bIsRunning(0)
 {
 
 }
@@ -30,7 +38,7 @@ NetMgr::~NetMgr()
 {
     delete m_pAcceptor; m_pAcceptor = NULL;
     delete m_pConnector; m_pConnector = NULL;
-    delete m_pThread; m_pThread = NULL;
+    delete m_pResponseThread; m_pResponseThread = NULL;
 }
 
 bool NetMgr::StartNetWork( uint16 port, const char* addr )
@@ -43,16 +51,22 @@ bool NetMgr::StartNetWork( uint16 port, const char* addr )
    //            break;
    //        }
    //    }
+
     m_port = port;
     m_strAddr = std::string(addr);
     m_Reactor = ACE_Reactor::instance();
     ACE_INET_Addr _addr( port, addr );
     MyAcceptor* acc = new MyAcceptor( _addr, m_Reactor );
     m_pAcceptor = acc;
-    m_pThread = new MyThread;
+    m_pResponseThread = new MyThread;
     //
+    std::cout<<"Start TestServer"<<std::endl;
     ACE_Time_Value val( 0, 50000 );
 
+
+    m_pResponseThread->start();
+    m_bIsRunning = 1;
+    //main loop
     while( !m_Reactor->reactor_event_loop_done() )
     {
         if ( -1 == m_Reactor->run_reactor_event_loop(val ) )
@@ -61,8 +75,10 @@ bool NetMgr::StartNetWork( uint16 port, const char* addr )
         }
         Update();
     }
-
+    m_bIsRunning = 0;
     //m_Threads = new MyThread[2];// 0for read 1for write
+
+    std::cout<<"TestServer Exit"<<std::endl;
     return true;
 }
 
@@ -83,7 +99,8 @@ void NetMgr::StopNetWorld()
 //    {
 //        m_Threads[i].stop();
 //    }
-    m_pThread->wait();
+    m_bIsRunning = 0;
+    m_pResponseThread->wait();
 }
 
 void NetMgr::Wait()
@@ -92,7 +109,7 @@ void NetMgr::Wait()
 //    {
 //        m_Threads[i].wait();
 //    }
-    m_pThread->wait();
+    m_pResponseThread->wait();
 }
 
 int NetMgr::ProcessMsg()
@@ -104,6 +121,13 @@ int NetMgr::ProcessMsg()
     return 0;
 }
 
+void NetMgr::AddPacket( Packet* pkg )
+{
+    std::cout<<"cmd_id:"<<pkg->msg_header.cmd<<
+            "pkg_size:"<<pkg->msg_header.size<<
+            "pkg:"<<pkg->msg_body<<std::endl;
+}
+
 void NetMgr::Update()
 {
     _LOCK<ACE_Thread_Mutex> lock;
@@ -113,12 +137,14 @@ void NetMgr::Update()
     }
     for ( SetSockets::iterator it = m_setSockets.begin(); it != m_setSockets.end();  )
     {
-        if( *it &&  (*it)->Update() )
+        assert( *it );
+        if( (*it)->Update() )
         {
             ++it;
         }
         else
         {
+            (*it)->CloseSock();
             --m_dwConnNums;
             m_setSockets.erase(it++);
         }
@@ -164,3 +190,9 @@ void NetMgr::OnSocketClose(MyAceSvcHandler* pSocket)
         --m_dwConnNums;
     }
 }
+
+NetMgr::SetSockets& NetMgr::GetSetSockets() const
+{
+    return m_setSockets;
+}
+

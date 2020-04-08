@@ -37,13 +37,22 @@ MyAceSvcHandler::~MyAceSvcHandler()
    std::cout<<"~MyAceSvcHandler()"<<std::endl;
 }
 
-bool MyAceSvcHandler::Update()
+int MyAceSvcHandler::Update()
 {
     //todo
-
-    return true;
+    std::cout<<"MyAceSvcHandler::Update"<<std::endl;
+    return 0;
 }
 
+void MyAceSvcHandler::CloseSock()
+{
+    if (closing_)
+    {
+        return;
+    }
+    closing_ = true;
+    peer().close_writer();
+}
 
 bool MyAceSvcHandler::IsClosed() const
 {
@@ -153,15 +162,35 @@ int MyAceSvcHandler::handle_input( ACE_HANDLE fd )
              }
          }
          //got one full msg
-         assert( m_MsgHeader.space() == 0 );
-         assert( m_MsgBody.space() == 0 );
-         Packet pkg;
-         //todo
+//         assert( m_MsgHeader.space() == 0 );
+//         assert( m_MsgBody.space() == 0 );
+         if ( ProcessPkg() == -1 )
+         {
+             return -1;
+         }
          m_MsgHeader.reset();
          m_MsgBody.base( NULL, 0 );
 
      }
      return 0;
+}
+
+int MyAceSvcHandler::ProcessPkg( )
+{
+    assert( m_MsgHeader.space() == 0 );
+    assert( m_MsgBody.space() == 0 );
+    assert( m_MsgHeader.length() == sizeof(PacketHeader) );
+    Packet* pkg = new Packet;
+    pkg->msg_header = *( (PacketHeader*)m_MsgHeader.rd_ptr() );
+    pkg->msg_header.size -= 8;
+    pkg->msg_body = m_MsgBody.rd_ptr();
+
+    sNetMgrInstance->AddPacket( pkg );
+    //todo
+    std::cout<<"pkg_id="<<pkg->msg_header.cmd<<std::endl<<std::cout<<"pkg_size="<<pkg->msg_header.size<<":";
+    std::cout<<"pkg_msg="<<pkg->msg_body<<std::endl;
+
+    return 0;
 }
 
  int MyAceSvcHandler::handle_close(ACE_HANDLE h , ACE_Reactor_Mask )

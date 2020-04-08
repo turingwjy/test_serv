@@ -3,7 +3,7 @@ set(CMAKE_CXX_FLAGS "-fpermissive -g -Wl,-rpath=../../libc/ -D__STDC_LIMIT_MACRO
 #SET(CMAKE_BUILD_TYPE Release)
 SET(CMAKE_BUILD_TYPE Debug)
 
-file(GLOB sources_TEST *.cpp) 
+file(GLOB sources_TEST test.cpp) 
 
 set(Gameserver_STAT_SRCS
   ${sources_TEST}

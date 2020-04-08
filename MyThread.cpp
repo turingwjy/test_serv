@@ -22,7 +22,8 @@ MyThread::MyThread() : m_ThreadId(0), m_ThreadHandle(0)
 {}
 
 MyThread::~MyThread()
-{}
+{
+}
 
 bool MyThread::start()
 {
@@ -61,11 +62,12 @@ void MyThread::resume()
 
 void* MyThread::RunThread( void* arg )
 {
-    int ret;
-    m_mutex.acquire();
-    sNetMgrInstance->ProcessMsg();
-    m_mutex.release();
+
     return NULL;
 }
 
-
+void MyThread::AddPacket( Packet* pkg )
+{
+    if( !pkg ) return ;
+    m_PkgQueue.add( pkg );
+}

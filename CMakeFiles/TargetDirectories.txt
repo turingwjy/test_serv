@@ -1,0 +1,3 @@
+/home/turing/test/test_serv/CMakeFiles/rebuild_cache.dir
+/home/turing/test/test_serv/CMakeFiles/edit_cache.dir
+/home/turing/test/test_serv/CMakeFiles/Test.dir

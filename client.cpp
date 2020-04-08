@@ -45,10 +45,13 @@ struct PacketBody
 };
 #define MAXLINE 4096
 #define LOG(STR) std::cout<<(STR)<<std::endl
+
+
+
 int main( int argc, char** argv )
 {
     int sockfd, n , rec_len;
-    char recvdata[1024], senddata[2000];
+    char recvdata[1024], senddata[1024];
     char buf[ MAXLINE ];
 
     struct sockaddr_in ser_addr;
@@ -83,20 +86,44 @@ int main( int argc, char** argv )
     }
     //memset( senddata, 'a', sizeof(senddata) );
     LOG("send msg to server");
+
+
     while(1)
     {
-        std::cin >> senddata;
+        std::string msgBody ;
+        std::cin >> msgBody;
 
-        if ( strcmp( senddata , "close" ) == 0 )
+        if ( msgBody == "close" )
         {
             close(sockfd);
             return 0;
         }
-        if ( send( sockfd, senddata, sizeof( senddata ), MSG_NOSIGNAL  ) < 0 )
+
+        //write one packet to sendbuf
+        PacketHeader header;
+
+        header.cmd = 1;
+        header.size = sizeof( header ) + strlen( msgBody.c_str() );
+        uint32 rpos = 0, wpos = 0;
+
+        memcpy( senddata + wpos, (uint8*)header.cmd, sizeof( header.cmd ) );
+        wpos += header.cmd;
+
+        memcpy( senddata + wpos, (uint8*)header.size, sizeof( header.size ) );
+        wpos += header.size;
+
+        memcpy( senddata + wpos, msgBody.c_str(), msgBody.size() );
+        wpos += msgBody.size();
+
+        //------------------------------------------------------------------
+
+        if ( send( sockfd, senddata, ( wpos - rpos ), MSG_NOSIGNAL  ) < 0 )
         {
             printf("send error: %s(errno: %d)\n",strerror(errno),errno);
             return 0;
         }
+        memset( senddata, '0', 1024 );
+        wpos = 0;
 //        char a[] = "12345";
 //        if ( send( sockfd, a, sizeof(a), MSG_NOSIGNAL  ) < 0 )
 //        {

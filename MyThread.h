@@ -26,6 +26,7 @@ class MyThread
 {
 
 public:
+    typedef std::set< MyAceSvcHandler* > SetSockets;
     MyThread();
     ~MyThread();
 public:
@@ -34,12 +35,14 @@ public:
     bool stop();
     void suspend();
     void resume();
+    void AddPacket( Packet* pkg );
 private:
     static void* RunThread( void* arg );
 private:
     ACE_thread_t        m_ThreadId;
     ACE_hthread_t       m_ThreadHandle;
-    ACE_Thread_Mutex    m_mutex;
+    ACE_Thread_Mutex    m_SockLock;
+    LockedQueue< Packet*, ACE_Thread_Mutex >       m_PkgQueue;
 };
 
 #endif
