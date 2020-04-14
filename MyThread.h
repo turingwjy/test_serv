@@ -22,6 +22,7 @@
 #include <ace/Thread.h>
 #include "MySvcHandler.h"
 #include "LockedQueue.h"
+#include <set>
 class MyThread
 {
 
