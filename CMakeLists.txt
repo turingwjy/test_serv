@@ -1,22 +1,23 @@
+cmake_minimum_required(VERSION 3.7)
 #set(CMAKE_CXX_FLAGS "-fpermissive -p -g -O2 -Wl,-rpath=../../libc/ -D__STDC_LIMIT_MACROS")
 set(CMAKE_CXX_FLAGS "-fpermissive -g -Wl,-rpath=../../libc/ -D__STDC_LIMIT_MACROS -Wformat=0")
-#SET(CMAKE_BUILD_TYPE Release)
-SET(CMAKE_BUILD_TYPE Debug)
+SET(CMAKE_BUILD_TYPE Release)
+#SET(CMAKE_BUILD_TYPE Debug)
 
-file(GLOB sources_TEST test.cpp) 
+file(GLOB sources_all *.cpp *.h) 
 
-set(Gameserver_STAT_SRCS
-  ${sources_TEST}
+set(Test_STAT_SRCS
+  ${sources_all}
  # ${sources_SHARE_DATA}
  # ${sources_HBASE}
 )
 
-message(status " This is the server_share srcs:" ${sources_SERVER_SHARE})
-message(status " This is the share srcs:" ${sources_SHARE})
+#message(status " This is the server_share srcs:" ${sources_SERVER_SHARE})
+#message(status " This is the share srcs:" ${sources_SHARE})
 #message(status " This is the hbase srcs:" ${sources_HBASE})
-message(status " This is the srcs:" ${sources})
+message(status " This is the srcs:" ${sources_all})
 
-#include_directories(
+include_directories(
 #  ${CMAKE_CURRENT_SOURCE_DIR}/../server_share
 #  ${CMAKE_CURRENT_SOURCE_DIR}/../server_share/protocol
 #  ${CMAKE_CURRENT_SOURCE_DIR}/../server_share/database
@@ -24,17 +25,17 @@ message(status " This is the srcs:" ${sources})
 #  ${CMAKE_CURRENT_SOURCE_DIR}/../server_share/network
 #  ${CMAKE_CURRENT_SOURCE_DIR}/../share
 #  ${CMAKE_CURRENT_SOURCE_DIR}/system
-#  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}
 #  /usr/local/include/mozjs-24
 #  /usr/local/include/libbson-1.0
 #  /usr/local/include/libmongoc-1.0
 #  /usr/include/mono-2.0
-#)
+)
 LINK_DIRECTORIES(
   /usr/local/lib
   /usr/lib
 )
-add_executable(Test ${Gameserver_STAT_SRCS})
+add_executable(Test ${Test_STAT_SRCS})
 target_link_libraries(Test ACE)
 #target_link_libraries(Gameserver mysqlclient_r)
 #target_link_libraries(Gameserver json_linux)

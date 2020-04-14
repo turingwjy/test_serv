@@ -18,8 +18,7 @@
 #ifndef _NET_MGR_H
 #define _NET_MGR_H
 #include <ace/Thread_Mutex.h>
-#include <ace/SOCK_Acceptor.h>
-#include <ace/SOCK_Connector.h>
+
 #include <ace/Acceptor.h>
 #include <ace/Connector.h>
 #include <ace/Guard_T.h>
@@ -31,16 +30,16 @@ class _LOCK
 
 {
 public:
-    _LOCK(_MUTEX_TYPE& mutex) : _mutex(mutex)
+    _LOCK(_MUTEX_TYPE& mutex) : _mutex(&mutex)
     {
-        _mutex.acquire();
+        _mutex->acquire();
     }
     ~_LOCK()
     {
-        _mutex.release();
+        _mutex->release();
     }
 private:
-    _MUTEX_TYPE _mutex;
+    _MUTEX_TYPE* _mutex;
 };
 
 class NetMgr
@@ -51,9 +50,7 @@ public:
     typedef std::set< MyAceSvcHandler* > SetSockets;
     static NetMgr* GetInstance()
     {
-        _LOCK<ACE_Thread_Mutex> lock( s_mutex );
-        static NetMgr _mgr;
-        return &_mgr;
+        return s_pInstance;
     }
     bool StartNetWork( uint16 port, const char* addr );
     void StopNetWorld();
@@ -63,13 +60,15 @@ public:
     void Wait();
     int ProcessMsg();
     void AddPacket(Packet* pkg);
-    SetSockets& GetSetSockets() const;
+    bool IsStop()const;
+    //const SetSockets& GetSetSockets() const;
 private:
     NetMgr();
     virtual ~NetMgr();
     static ACE_Thread_Mutex s_mutex;
     MyThread*   m_pResponseThread;
 private:
+    static  NetMgr*     s_pInstance;
     uint16              m_port;
     std::string         m_strAddr;
     SetSockets          m_setSockets;
@@ -79,7 +78,7 @@ private:
     ACE_Event_Handler*  m_pConnector;
     MyThread*           m_Threads;
     ACE_Reactor*        m_Reactor;
-    bool                m_bIsRunning;
+    bool                m_bIsStop;
 };
 
 

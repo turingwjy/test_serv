@@ -15,29 +15,33 @@
  *
  * =====================================================================================
  */
+#ifndef _LOCKED_QUEUE_H
+#define _LOCKED_QUEUE_H
 
 #include <ace/Guard_T.h>
 #include <ace/Thread_Mutex.h>
 #include <deque>
-
-template <typename T, typename LOCK_TYPE, typename StorageType = std::deque<T> >
+template < typename DataType, typename LockType, typename StorageType = std::deque<DataType> >
 class LockedQueue
 {
 public:
     LockedQueue(){}
     ~LockedQueue(){}
 public:
-    void add( const T& data )
+    void add( const DataType& data )
     {
         lock();
         m_queue.push_back(data);
         unlock();
     }
-    bool next( T& data )
+    bool next( DataType& data )
     {
         lock();
         if ( m_queue.empty() )
+        {
+            unlock();
             return false;
+        }
         data = m_queue.front();
         m_queue.pop_front();
         unlock();
@@ -60,6 +64,8 @@ public:
         m_lock.release();
     }
 private:
-    LOCK_TYPE   m_lock;
+    LockType    m_lock;
     StorageType m_queue;
 };
+
+#endif

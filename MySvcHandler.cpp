@@ -17,7 +17,8 @@
  */
 #include "MySvcHandler.h"
 #include "NetMgr.h"
-
+#include <iostream>
+#include <assert.h>
 
 MyAceSvcHandler::MyAceSvcHandler() :
     m_dwSockId(0),
@@ -40,7 +41,7 @@ MyAceSvcHandler::~MyAceSvcHandler()
 int MyAceSvcHandler::Update()
 {
     //todo
-    std::cout<<"MyAceSvcHandler::Update"<<std::endl;
+    std::cout<<"MyAceSvcHandler::Update do Something"<<std::endl;
     return 0;
 }
 
@@ -70,7 +71,7 @@ int MyAceSvcHandler::open( void* arg )
     {
         return -1;
     }
-    std::cout<<"MyAceSvcHandler::open"<<std::endl;
+    std::cout<<"MyAceSvcHandler::open, SockId = "<<m_dwSockId<<std::endl;
     return 0;
 }
 
@@ -97,26 +98,20 @@ int MyAceSvcHandler::handle_input( ACE_HANDLE fd )
     {
         return -1;
     }
-    char buf [4096] = {0};
+    char buf [4096] ;
 
-     ACE_Data_Block db(sizeof(buf),
-                       ACE_Message_Block::MB_DATA,
-                       buf,
-                       0,
-                       0,
-                       ACE_Message_Block::DONT_DELETE,
-                       0);
-     ACE_Message_Block message_block(&db,
-                                     ACE_Message_Block::DONT_DELETE,
-                                     0);
-     const ssize_t msg_len = message_block.space();
-     const ssize_t n = peer().recv( message_block.wr_ptr(), msg_len );
+     ACE_Data_Block db( sizeof(buf), ACE_Message_Block::MB_DATA, buf, 0, 0, ACE_Message_Block::DONT_DELETE, 0);
+     ACE_Message_Block message_block(&db, ACE_Message_Block::DONT_DELETE, 0);
+     const size_t recv_size = message_block.space();
+     const ssize_t n = peer().recv( message_block.wr_ptr(), recv_size );
+     std::cout<<"revced_size:"<<n<<std::endl;
      //disconnect
      if ( n <= 0 )
      {
          return -1;
      }
      message_block.wr_ptr( n );
+
      while( message_block.length() > 0 )
      {
          //msg header
@@ -133,18 +128,19 @@ int MyAceSvcHandler::handle_input( ACE_HANDLE fd )
                  break;
              }
 
-             //already received the whole header
-              assert( sizeof( PacketHeader ) == m_MsgHeader.length() );
-              PacketHeader& header = *( (PacketHeader*)m_MsgHeader.rd_ptr() );
-              header.size -= 8;
-              if ( header.size > 0 )
-              {
-                  m_MsgBody.base( message_block.rd_ptr(), header.size );
-              }
-              else
-              {
-                  assert( m_MsgBody.space() == 0 );
-              }
+            //already received the whole header
+            //assert( sizeof( PacketHeader ) == m_MsgHeader.length() );
+            PacketHeader& header = *( (PacketHeader*)(m_MsgHeader.rd_ptr()) );
+            header.size -= 8;
+            if ( header.size > 0 )
+            {
+              m_MsgBody.base( message_block.rd_ptr(), header.size );
+            }
+            else
+            {
+              assert( m_MsgBody.space() == 0 );
+            }
+            std::cout<<"now header.size:"<<header.size<<std::endl;
          }
 
          //msg body
@@ -162,8 +158,8 @@ int MyAceSvcHandler::handle_input( ACE_HANDLE fd )
              }
          }
          //got one full msg
-//         assert( m_MsgHeader.space() == 0 );
-//         assert( m_MsgBody.space() == 0 );
+         assert( m_MsgHeader.space() == 0 );
+         assert( m_MsgBody.space() == 0 );
          if ( ProcessPkg() == -1 )
          {
              return -1;
@@ -182,13 +178,9 @@ int MyAceSvcHandler::ProcessPkg( )
     assert( m_MsgHeader.length() == sizeof(PacketHeader) );
     Packet* pkg = new Packet;
     pkg->msg_header = *( (PacketHeader*)m_MsgHeader.rd_ptr() );
-    pkg->msg_header.size -= 8;
     pkg->msg_body = m_MsgBody.rd_ptr();
 
     sNetMgrInstance->AddPacket( pkg );
-    //todo
-    std::cout<<"pkg_id="<<pkg->msg_header.cmd<<std::endl<<std::cout<<"pkg_size="<<pkg->msg_header.size<<":";
-    std::cout<<"pkg_msg="<<pkg->msg_body<<std::endl;
 
     return 0;
 }

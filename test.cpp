@@ -20,7 +20,7 @@
 #include <list>
 #include <vector>
 #include <algorithm>
-
+#include "NetMgr.h"
 using namespace std;
 
 //#include <tr1/memory>
@@ -53,8 +53,8 @@ using namespace std;
 
 
 #define override
-#define DATA_SIZE 1024
-#include <ace/Message_Block.h>
+//#define DATA_SIZE 1024
+//#include <ace/Message_Block.h>
 
 //#include "NetMgr.h"
 //struct PacketHeader
@@ -302,27 +302,12 @@ using namespace std;
 //    AddHandler( this, &Student::Call2 );
 //    AddHandler( this, &Student::Call3 );
 //}
-#include <typeinfo>
-class A
-{};
-#include <set>
-class Test
-{
-public:
-    typedef std::set<A*> SetA;
-    const SetA& getSetA()const
-    {
-        return m_setA;
-    }
-private:
-    SetA m_setA;
-};
 
 
 int main( int argc, char **argv )
 {
-    Test t;
-    const Test::SetA& setA = t.getSetA();
+    sNetMgrInstance->StartNetWork( 8888, "127.0.0.1" );
+    sNetMgrInstance->StopNetWorld();
     //std::cout<<typeid(unsigned char ).name()<<std::endl;
 //    Student s1;
 //

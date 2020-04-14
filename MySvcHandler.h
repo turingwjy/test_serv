@@ -19,12 +19,17 @@
 #ifndef __MY_SVC_HANDLER_H
 #define __MY_SVC_HANDLER_H
 
-#include "ace/Thread.h"
-#include "ace/Synch.h"
+#include <ace/Thread.h>
+#include <ace/Synch.h>
 #include <ace/Svc_Handler.h>
 #include <ace/SOCK_Stream.h>
+#include <ace/SOCK_Acceptor.h>
+#include <ace/SOCK_Connector.h>
+#include <ace/SOCK_Stream.h>
+#include <ace/Acceptor.h>
+#include <ace/Connector.h>
 #include "LockedQueue.h"
-#include <google/protobuf/message.h>
+//#include <google/protobuf/message.h>
 #define override
 #define DATA_SIZE 1024
 typedef unsigned char       uint8;
@@ -35,8 +40,10 @@ typedef unsigned long long  uint64;
 
 struct PacketHeader
 {
-    uint32  size;
+    //uint32  sock_id;
     uint32  cmd;
+    uint32  size;
+
 };
 
 struct Packet
@@ -48,7 +55,10 @@ struct Packet
 
 class MyAceSvcHandler : public ACE_Svc_Handler< ACE_SOCK_STREAM, ACE_NULL_SYNCH >
 {
-public:
+    friend class NetMgr;
+    typedef ACE_Acceptor< MyAceSvcHandler, ACE_SOCK_ACCEPTOR > MyAcceptor;
+    typedef ACE_Connector< MyAceSvcHandler, ACE_SOCK_CONNECTOR > MyConnector;
+public:////////////
     MyAceSvcHandler() ;
     virtual ~MyAceSvcHandler();
 public:
@@ -75,6 +85,5 @@ private:
     LockedQueue< ACE_Message_Block*, ACE_Thread_Mutex > m_RcvBufQueue;
 };
 
-typedef ACE_Acceptor< MyAceSvcHandler, ACE_SOCK_ACCEPTOR > MyAcceptor;
-typedef ACE_Connector< MyAceSvcHandler, ACE_SOCK_CONNECTOR > MyConnector;
+
 #endif
