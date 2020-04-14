@@ -35,8 +35,8 @@ typedef unsigned int        uint32;
 typedef unsigned long long  uint64;
 struct PacketHeader
 {
-    uint32  size;
     uint32  cmd;
+    uint32  size;
 };
 
 struct PacketBody
@@ -46,7 +46,15 @@ struct PacketBody
 #define MAXLINE 4096
 #define LOG(STR) std::cout<<(STR)<<std::endl
 
-
+//int main ( int argc, char **argv)
+//{
+//    char buf[64] = {0};
+//    char str[] = "12345";
+//    //memcpy( (char*)(senddata + wpos), (uint8*)header.cmd, sizeof( header.cmd ) );
+//    uint8 cmd = 3;
+//    memcpy( buf , (uint8*)&cmd, sizeof(cmd) );
+//    return 0;
+//}
 
 int main( int argc, char** argv )
 {
@@ -87,9 +95,13 @@ int main( int argc, char** argv )
     //memset( senddata, 'a', sizeof(senddata) );
     LOG("send msg to server");
 
+    memset( senddata, '0', sizeof(senddata) );
+    memset( recvdata, '0', sizeof(recvdata) );
+
 
     while(1)
     {
+        //std::string msgBody = "1234";
         std::string msgBody ;
         std::cin >> msgBody;
 
@@ -106,13 +118,13 @@ int main( int argc, char** argv )
         header.size = sizeof( header ) + strlen( msgBody.c_str() );
         uint32 rpos = 0, wpos = 0;
 
-        memcpy( senddata + wpos, (uint8*)header.cmd, sizeof( header.cmd ) );
-        wpos += header.cmd;
+        memcpy( (char*)(senddata + wpos), (uint8*)&header.cmd, sizeof( header.cmd ) );
+        wpos += sizeof( header.cmd );
 
-        memcpy( senddata + wpos, (uint8*)header.size, sizeof( header.size ) );
-        wpos += header.size;
+        memcpy( (char*)(senddata + wpos), (uint8*)&header.size, sizeof( header.size ) );
+        wpos += sizeof( header.size );
 
-        memcpy( senddata + wpos, msgBody.c_str(), msgBody.size() );
+        memcpy( (char*)(senddata + wpos), msgBody.c_str(), msgBody.size() );
         wpos += msgBody.size();
 
         //------------------------------------------------------------------
@@ -122,7 +134,8 @@ int main( int argc, char** argv )
             printf("send error: %s(errno: %d)\n",strerror(errno),errno);
             return 0;
         }
-        memset( senddata, '0', 1024 );
+        std::cout<<"sent data: " << senddata<<std::endl;
+        memset( senddata, '0', sizeof(senddata) );
         wpos = 0;
 //        char a[] = "12345";
 //        if ( send( sockfd, a, sizeof(a), MSG_NOSIGNAL  ) < 0 )
@@ -130,7 +143,7 @@ int main( int argc, char** argv )
 //            printf("send error: %s(errno: %d)\n",strerror(errno),errno);
 //            return 0;
 //        }
-        std::cout<<"sent data: " << senddata<<std::endl;
+
        // break;
     }
 
